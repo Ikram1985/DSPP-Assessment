@@ -1,1 +1,63 @@
+# Visualising the number of bedroom within each type of property, As you can see there is an even split
+housing_price['Bedrooms'].plot(kind = 'hist')
+# Visualising the price range for all of the property types. This showing the between 200k to 300k is where the most sales are made.
+housing_price['Price'].plot(kind = 'hist')
+# Create a new column called 'Decade', this is so that I can forecast for future decades what the price will be.
+housing_price['Decade'] = (housing_price['YearBuilt'] // 10) * 10
+# To confirm that the code is reading correctly
+print(housing_price[['YearBuilt', 'Decade']].head())
+# This is to showin how many house are built within each decade.
+print(housing_price['Decade'].value_counts().sort_index())
+# import matplotlib, So I can create a line graph.
+import matplotlib.pyplot as plt
+# Group by decade and calculate mean price
+avg_price_by_decade = housing_price.groupby('Decade')['Price'].mean()
+# This is now plotting all the information and then producing a line graph.
+plt.figure(figsize=(10,6))
+plt.plot(avg_price_by_decade.index, avg_price_by_decade.values, marker='o')
+plt.title("Average House Price by Decade")
+plt.xlabel("Decade")
+plt.ylabel("Average Price")
+plt.grid(True)
+plt.show()
+Created a box chart to see how many outliners are showing within each decade and see if there is a common trend within each decade.
+housing_price.pivot(columns = 'Decade', values = 'Price').plot(kind = 'box' , figsize=(10,6))
+# creating a linear regression model to see if we can project the future prices of properties in the coming decades.
 
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Group by decade (if not already aggregated)
+avg_price_by_decade = housing_price.groupby('Decade')['Price'].mean().reset_index()
+
+# Prepare data
+X = avg_price_by_decade['Decade'].values.reshape(-1, 1)
+y = avg_price_by_decade['Price'].values
+
+# Fit linear model
+model = LinearRegression().fit(X, y)
+
+# Future decades
+last_decade = avg_price_by_decade['Decade'].max()
+future_decades = np.array([last_decade + 10, last_decade + 20]).reshape(-1, 1)
+
+# Predictions
+future_prices = model.predict(future_decades)
+
+# Plot
+plt.figure(figsize=(10,6))
+plt.plot(avg_price_by_decade['Decade'], y, marker='o', label="Historical")
+plt.plot(future_decades, future_prices, marker='x', color='red', label="Forecast")
+plt.title("Average House Price Forecast")
+plt.xlabel("Decade")
+plt.ylabel("Average Price")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+print("Forecasts:")
+for d, p in zip(future_decades.ravel(), future_prices):
+    print(f"{d}: {p:.2f}")
+
+    # Looking at the chart it is showing the price going down. This could mean that there would be a lack of demand for properties. Or there may have been another event like in 2008 housing market crash.
