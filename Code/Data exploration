@@ -1,1 +1,17 @@
-
+# importing pandas into Colab.
+import pandas as pd
+# importing CSV into Colab, So the file can be read.
+housing_price = pd.read_csv("/content/housing_price_dataset.csv")
+# Breaking down the data within the CSV. Showing all the column details, if there is any null values, and the data type.
+housing_price.info()
+# Showing the heading of each column
+housing_price.head()
+# Running a code to drop any null values from the dataset.
+housing_price = housing_price.dropna(subset=['SquareFeet', 'Bedrooms', 'Bathrooms', 'Neighborhood', 'YearBuilt', 'Price'])
+housing_price.info()
+# Create a count, to show me the breakdown within the neighbourhood. As you can see there alot more properties in the suburb that Rural and Urban
+housing_price['Neighborhood'].value_counts()
+# Grouping the Neighbourhood / Bedrooms data, so I can look at the properties by number of bedroom. All the data set is similiar other than the median for Rural.
+housing_price.groupby('Neighborhood')[['Bedrooms']].agg(['mean', 'median', 'min' ,'max'])
+# Grouping the Neighbourhood / Price data, so I can look at the properties values can compare them by the different type.
+housing_price.groupby('Neighborhood')[['Price']].agg(['mean', 'median', 'min' ,'max'])
